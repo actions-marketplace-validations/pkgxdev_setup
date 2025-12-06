@@ -1,0 +1,33 @@
+name: cd·vx
+
+on:
+  release:
+    types:
+      - published
+
+concurrency:
+  group: cd/vx/${{ github.event.release.tag_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  vtagger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fischerscode/tagger@v0
+        with:
+          prefix: v
+      - run: |
+          latest_release=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/releases/latest \
+            | jq -r '.tag_name')
+
+          if [ "${latest_release}" = "${{ github.event.release.tag_name }}" ]; then
+            git tag -f latest
+            git push origin latest --force
+          fi

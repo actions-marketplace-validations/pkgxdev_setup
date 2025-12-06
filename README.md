@@ -7,15 +7,21 @@
 # GitHub Action
 
 ```yaml
-- uses: pkgxdev/setup@v1
+- uses: pkgxdev/setup@v4
 ```
 
 Installs the latest version of `pkgx`.
 
+> [!NOTE]
+>
+> * `v3` & `v4` default to pkgx^2
+> * `v2` defaults to pkgx^1
+
+
 See [`action.yml`] for all inputs and outputs, but here’s the usual ones:
 
 ```yaml
-- uses: pkgxdev/setup@v1
+- uses: pkgxdev/setup@v4
   with:
     +: deno@1.30
        rust@1.60   # we understand colloquial names, generally just type what you know
@@ -32,15 +38,22 @@ $ pkgx +rust
 > See [`@pkgxdev/dev`] to run the `dev` command in a GitHub Actions compatible manner
 
 
-### Shell Integration
-
-We cannot integrate with the GitHub Actions shell. But you probably don’t
-need it.
-
-### Should you Cache `~/.pkgx`?
+## Should you Cache `~/.pkgx`?
 
 No. pkgx packages are just tarballs. Caching is just a tarball. You’ll likely
 just slow things down.
+
+## Version History
+
+* `v4` defaults to `pkgx`^2, uses node^20 and doesn’t install any pre-reqs on Linux†
+* `v3` defaults to `pkgx`^2 and uses node^20
+* `v2` defaults to `pkgx`^1 and uses node^20
+* `v1` defaults to `pkgx`@latest and uses node^16
+* `v0` should not be used
+
+> † `pkgx` requires glibc>=2.28, libgcc, libstdc++ and libatomic. Generally
+> images come installed with these. If you are building binaries you may need
+> the `-dev` versions of these packages also.
 
 &nbsp;
 
@@ -52,8 +65,16 @@ To install `pkgx`:
 ```sh
 $ curl https://pkgx.sh | sh
 
-# - installs to `/usr/local/bin/pkgx`
-# - if pkgx is already installed it’s a noop
+# - installs `pkgx` & `pkgm` to `/usr/local/bin`
+# - if both are already installed, does an update check
+```
+
+Or on Windows:
+
+```ps1
+$ irm https://pkgx.sh | iex
+# - installs `pkgx.exe` to `$env:ProgramFiles/pkgx`
+# - adds it to your system PATH
 ```
 
 ## Temporary Sandboxes
