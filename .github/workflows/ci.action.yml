@@ -21,7 +21,7 @@ jobs:
   std:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: npm i
       - uses: ./
         with:
@@ -40,14 +40,22 @@ jobs:
           - null
           - /tmp/pkgx
         include:
-        - os: ubuntu-latest
-          container: debian:buster-slim
-        - os: windows-latest
+          - os: ubuntu-latest
+            container: debian:buster-slim
+          - os: windows-latest
     container: ${{ matrix.container }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - name: install libatomic (required by Node 25+ on older distros)
+        if: ${{ matrix.container == 'debian:buster-slim' }}
+        run: |
+          # Debian buster is EOL, so we need to change mirrors
+          sed -i 's/deb\.debian/archive\.debian/g' /etc/apt/sources.list
+          apt-get update -qq
+          apt-get install -y libatomic1
+
+      - uses: actions/setup-node@v6
         with:
           node-version: latest
       - run: npm i
@@ -75,7 +83,7 @@ jobs:
   multiple-apply-is-ok:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: npm i
       - uses: ./
       - run: pkgx --version
@@ -85,16 +93,16 @@ jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: npm i
       - uses: ./
       - run: npm run dist
       - run: rm /usr/local/bin/pkgx
-      - run: '! pkgx --version'
+      - run: "! pkgx --version"
       - run: git clean -xfd
       - uses: ./
       - run: pkgx --version
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: |
             ./action.js
@@ -118,7 +126,7 @@ jobs:
           - fedora:latest
     container: ${{ matrix.container }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: action
       - uses: ./
