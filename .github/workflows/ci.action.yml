@@ -55,7 +55,7 @@ jobs:
           apt-get update -qq
           apt-get install -y libatomic1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: latest
       - run: npm i
